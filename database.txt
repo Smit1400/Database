@@ -1,0 +1,147 @@
+import pyodbc as db
+from tkinter import *
+from tkinter import messagebox
+from tkinter import simpledialog
+list1=[]
+con = db.connect('DRIVER={SQL Server};'
+                 'SERVER=acefileserver;'
+                 'DATABASE=abc;'
+                 'uid=sa ; pwd=pass123')
+window=Tk()
+window.title("Welcome!")
+window.geometry('400x400')
+window.config(bg='lemonchiffon')
+lbl=Label(window,text='Id').grid(row=0,column=0)            
+txt=Entry(window,width='20')
+txt.grid(row=0,column=1)
+
+lbl1=Label(window,text='Name').grid(row=1,column=0)
+txt1=Entry(window,width='20')
+txt1.grid(row=1,column=1)
+lbl2=Label(window,text='Address').grid(row=2,column=0)
+txt2=Entry(window,width='20')
+txt2.grid(row=2,column=1)
+def list2():
+    cur=con.cursor()
+    cur.execute('SELECT* from ab1')
+    for row in cur:
+        list1.append(row)
+list2()
+def delete():
+    txt.delete(0,END)
+    txt1.delete(0,END)
+    txt2.delete(0,END)
+def  disable():
+    txt.config(state='disabled')
+    txt1.config(state='disabled')
+    txt2.config(state='disabled')
+def normal():
+    txt.config(state='normal')
+    txt1.config(state='normal')
+    txt2.config(state='normal')
+    
+def Add1():
+    cur=con.cursor()
+    data=messagebox.askokcancel('Message box','Your Reply ')
+    if data==True:
+        cur.execute("INSERT INTO ab1 VALUES(?,?,?)",txt.get(),txt1.get(),txt2.get())
+        con.commit()
+    delete()
+def Show():
+    cur = con.cursor()
+    cur.execute('SELECT * from ab1')
+    for row in cur:
+        print(row)
+def Delete():
+    cur=con.cursor()
+    var=txt.get()
+    cur.execute("DELETE FROM ab1 WHERE ab1Id =?",var)
+    con.commit()
+    txt.delete(0,END)
+def Update():
+    cur=con.cursor()
+    cur.execute("UPDATE ab1 SET ab1Name =?,ab1Add =? WHERE ab1Id =?",txt1.get(),txt2.get(),txt.get())
+    delete()
+    con.commit()
+def FIRST():
+    normal()
+    global x
+    x=0
+    delete()
+    show()
+    disable()
+x=0
+def show():
+        a=list1[x][0]
+        b=list1[x][1]
+        c=list1[x][2]
+        txt.insert("end",a)
+        txt1.insert("end",b)
+        txt2.insert("end",c)
+def NEXT():
+    normal()
+    global x
+    delete()
+    l=len(list1)                                                                                                                                                                                    
+    x+=1
+    if x<l:
+        show()
+        disable()
+    else:
+        messagebox.showinfo('message content','No Data')
+    
+def PREVIOUS():
+    normal()
+    global x
+    delete()
+    x-=1
+    if x>=0:
+        show()
+        disable()
+    else:
+        messagebox.showinfo('message content','No data')
+def LAST():
+    normal()
+    global x
+    x=len(list1)-1
+    delete()
+    show()
+    disable()
+z=len(list1)
+def SEARCH():
+    
+    normal()
+    delete()
+    ser = simpledialog.askstring("Input", "Which ID you want to search?",
+                                parent=window)
+    flag=0
+    try:
+        if ser is not None:
+            for x in range (0,z):
+            
+                    if int(ser)==int(list1[x][0]):
+                
+                        a=list1[x][0]
+                        b=list1[x][1]
+                        c=list1[x][2]
+                        txt.insert("end",a)
+                        txt1.insert("end",b)
+                        txt2.insert("end",c)
+                        disable()
+                        flag=1
+                
+        if flag==0:
+                messagebox.showinfo('Message content','Cancel')
+    except ValueError:
+        messagebox.showinfo('Message content','You didnt enter anything')
+        
+FIRST()
+btn=Button(window,text='Add',command=Add1).grid(row=3,column=0)
+btn1=Button(window,text='Update',command=Update).grid(row=3,column=1)
+btn2=Button(window,text='Delete',command=Delete).grid(row=3,column=2)
+btn3=Button(window,text='Show',command=Show).grid(row=3,column=3)
+btn4=Button(window,text='First',command=FIRST).grid(row=4,column=0)
+btn1=Button(window,text='Next',command=NEXT).grid(row=4,column=1)
+btn2=Button(window,text='Previous',command=PREVIOUS).grid(row=4,column=2)
+btn3=Button(window,text='Last',command=LAST).grid(row=4,column=3)
+btn5=Button(window,text='Search',command=SEARCH).grid(row=5,column=0)
